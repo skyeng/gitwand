@@ -1,0 +1,15 @@
+# Include here as many items as you expect to be pages of whatever you want to get from Github.
+github_pages:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+
+teams: {}
+repos: {}

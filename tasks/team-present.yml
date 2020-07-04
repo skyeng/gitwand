@@ -1,0 +1,76 @@
+---
+- name: "Check whether {{ team.key }} team exists"
+  uri:
+    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}'
+    user: "{{ github_user }}"
+    password: "{{ github_token }}"
+    force_basic_auth: yes
+    status_code:
+      - 200
+      - 404
+  register: response
+
+- set_fact:
+    team_data: >-
+      {{ team.value | combine({ 'name': team.value.name | default(team.key) }) }}
+
+- name: "Get id of {{ team.key }}'s parent"
+  when: team.value.parent is defined
+  block:
+    - uri:
+        url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.value.parent }}'
+        user: "{{ github_user }}"
+        password: "{{ github_token }}"
+        force_basic_auth: yes
+      register: parent
+
+    - set_fact:
+        team_data: >-
+          {{ team_data | combine({ 'parent_team_id': parent.json.id }) }}
+
+- name: "Create new {{ team.key }} team"
+  uri:
+    url: '{{ github_api }}/orgs/{{ github_org }}/teams'
+    method: POST
+    user: "{{ github_user }}"
+    password: "{{ github_token }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ team_data | to_json }}"
+    status_code: 201
+  when: response.status == 404
+
+- name: "Update existing {{ team.key }} team"
+  uri:
+    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}'
+    method: PATCH
+    user: "{{ github_user }}"
+    password: "{{ github_token }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ team_data | to_json }}"
+  when: response.status == 200
+
+- name: "Update {{ team.key }}'s maintainers"
+  loop: "{{ team.value.maintainer | default([]) }}"
+  loop_control:
+    loop_var: mmbr
+  include: team-membership.yml
+  vars:
+    role: maintainer
+
+- name: "Update {{ team.key }}'s ordinary members"
+  loop: "{{ team.value.member | default([]) }}"
+  loop_control:
+    loop_var: mmbr
+  include: team-membership.yml
+  vars:
+    role: member
+
+- name: "Expel {{ team.key }}'s members"
+  loop: "{{ team.value.absent | default([]) }}"
+  loop_control:
+    loop_var: mmbr
+  include: team-membership.yml
+  vars:
+    role: absent

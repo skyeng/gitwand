@@ -1,0 +1,71 @@
+---
+- name: "Check whether {{ repo.key }} repository exists"
+  uri:
+    url: '{{ github_api }}/repos/{{ github_org }}/{{ repo.key }}'
+    user: "{{ github_user }}"
+    password: "{{ github_token }}"
+    force_basic_auth: yes
+    status_code:
+      - 200
+      - 404
+  register: response
+
+- name: "Create new {{ repo.key }} repository"
+  uri:
+    url: '{{ github_api }}/orgs/{{ github_org }}/repos'
+    method: POST
+    user: "{{ github_user }}"
+    password: "{{ github_token }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ repo.value | combine({ 'name': repo.key }) | to_json }}"
+    status_code: 201
+  when: response.status == 404
+
+- name: "Update existing {{ repo.key }} repository"
+  uri:
+    url: '{{ github_api }}/repos/{{ github_org }}/{{ repo.key }}'
+    method: PATCH
+    user: "{{ github_user }}"
+    password: "{{ github_token }}"
+    force_basic_auth: yes
+    body_format: json
+    body: "{{ repo.value | combine({ 'name': repo.key }) | to_json }}"
+  when: response.status == 200
+  # продолжаем, если репа заархивирована
+  ignore_errors: "{{ repo.value.archived | default(false) | bool }}"
+
+- when: not (repo.value.archived | default(false))
+  block:
+    - name: "Update {{ repo.key }}'s teams"
+      loop: "{{ query('dict', repo.value.teams | default({})) }}"
+      loop_control:
+        loop_var: perm
+      include: repo-perm.yml
+
+    - name: Initialize the list of direct collaborators with an empty list
+      set_fact:
+        cllbrtrs: []
+
+    - name: "Prepare a list of {{ repo.key }}'s direct collaborators"
+      loop: "{{ repo.value.collaborators.direct | default([]) }}"
+      loop_control:
+        loop_var: clbr
+      set_fact:
+        cllbrtrs: "{{ cllbrtrs + [ users[clbr].github ] }}"
+
+    - name: "Update {{ repo.key }} repo's direct collaborators"
+      loop: "{{ cllbrtrs }}"
+      loop_control:
+        loop_var: clbr
+      include: repo-collaborator-present.yml
+      vars:
+        permission: admin
+
+    - name: "Update {{ repo.key }} repo's outside collaborators"
+      loop: "{{ repo.value.collaborators.outside | default([]) }}"
+      loop_control:
+        loop_var: clbr
+      include: repo-collaborator-present.yml
+      vars:
+        permission: push

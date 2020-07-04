@@ -1,0 +1,22 @@
+github_api: https://api.github.com
+github_per_page: 100
+
+## Default settings: https://developer.github.com/v3/repos/#create
+github_repo_archived: false
+github_repo_has_issues: true
+github_repo_has_projects: true
+github_repo_has_wiki: true
+github_repo_private: false
+
+github_org: ''
+github_user: ''
+github_token: ''
+
+github_vars_dir: vars/github
+github_users_dir: vars/users
+
+## Do nohing with Github by default.
+## Otherwise it's very easy to run into limits on the number of API calls.
+github_repos__state:
+github_teams__state:
+github_members__state:

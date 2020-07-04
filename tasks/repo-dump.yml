@@ -1,0 +1,103 @@
+---
+- name: "Get all {{ repo.name }}'s teams"
+  # Include here as many items as you expect to be pages of teams.
+  loop: "{{ github_pages }}"
+  loop_control:
+    loop_var: page
+  uri:
+    url: "{{ github_api }}/repos/{{ github_org }}/{{ repo.name }}/teams\
+      ?per_page={{ github_per_page }}\
+      &page={{ page }}"
+    user: "{{ github_user }}"
+    password: "{{ github_token }}"
+    force_basic_auth: yes
+  register: response
+  # Do the next loop iteration with the very first page (when the response does not exist yet) or if
+  # the last response returned anything.  If the last response was empty, than it's time to finish the loop.
+  when: page == 1 or response.json | length > 0
+
+- set_fact:
+    repo_admin: >-
+      {{ response | json_query("results[*].json[?permission=='admin'].name") | flatten}}
+    repo_push: >-
+      {{ response | json_query("results[*].json[?permission=='push'].name") | flatten}}
+    repo_pull: >-
+      {{ response | json_query("results[*].json[?permission=='pull'].name") | flatten}}
+
+- name: "Get all {{ repo.name }}'s direct collaborators"
+  include: repo-dump-collaborators.yml
+  vars:
+    affiliation: direct
+
+- name: "Jot down all {{ cllbrtrs | length }} {{ repo.name }}'s direct collaborators"
+  set_fact:
+    cllbrtrs_direct: "{{ cllbrtrs }}"
+
+- name: "Get all {{ repo.name }}'s outside collaborators"
+  include: repo-dump-collaborators.yml
+  vars:
+    affiliation: outside
+
+- name: "Jot down all {{ cllbrtrs | length }} {{ repo.name }}'s outside collaborators"
+  set_fact:
+    cllbrtrs_outside: "{{ cllbrtrs }}"
+
+- name: "Dump the {{ repo.name }} repo"
+  copy:
+    content: |
+      {{ repo.name }}:
+      {% if repo.archived != github_repo_archived %}
+        archived: {{ not github_repo_archived }}
+      {% endif %}
+      {% if repo.default_branch != 'master' %}
+        default_branch: {{ repo.default_branch }}
+      {% endif %}
+      {% if repo.description is defined and repo.description != '' %}
+        description: >-
+          {{ repo.description }}
+      {% endif %}
+      {% if repo.has_issues != github_repo_has_issues %}
+        has_issues: {{ not github_repo_has_issues }}
+      {% endif %}
+      {% if repo.has_projects != github_repo_has_projects %}
+        has_projects: {{ not github_repo_has_projects }}
+      {% endif %}
+      {% if repo.has_wiki != github_repo_has_wiki %}
+        has_wiki: {{ not github_repo_has_wiki }}
+      {% endif %}
+      {% if repo.homepage is defined and repo.homepage != '' %}
+        homepage: {{ repo.homepage }}
+      {% endif %}
+      {% if repo.language is defined and repo.language != '' %}
+        language: {{ repo.language }}
+      {% endif %}
+      {% if repo.private != github_repo_private %}
+        private: {{ not github_repo_private }}
+      {% endif %}
+      {% if (repo_admin | length) + (repo_push | length) + (repo_pull | length) > 0 %}
+        teams:
+      {% if repo_admin | length > 0 %}
+          admin:
+      {{ repo_admin | sort | to_nice_yaml | indent(6, true) }}
+      {%- endif %}
+      {% if repo_push | length > 0 %}
+          push:
+      {{ repo_push | sort | to_nice_yaml | indent(6, true) }}
+      {%- endif %}
+      {% if repo_pull | length > 0 %}
+          pull:
+      {{ repo_pull | sort | to_nice_yaml | indent(6, true) }}
+      {%- endif %}
+      {%- endif %}
+      {% if (cllbrtrs_direct | length) + (cllbrtrs_outside | length) > 0 %}
+        collaborators:
+      {% if cllbrtrs_direct | length > 0 %}
+          direct:
+      {{ cllbrtrs_direct | sort | to_nice_yaml | indent(6, true) }}
+      {%- endif %}
+      {% if cllbrtrs_outside | length > 0 %}
+          outside:
+      {{ cllbrtrs_outside | sort | to_nice_yaml | indent(6, true) }}
+      {%- endif %}
+      {%- endif %}
+    dest: "{{ github_vars_dir }}/repos/{{ repo.name }}.yml"

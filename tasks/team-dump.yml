@@ -1,0 +1,46 @@
+---
+## Github does not show role of a member in the list of team members.
+## Therefore we have to retrieve all members separately by their roles.
+- name: "Dump maintainers of {{ team.slug }} team"
+  include: team-members-dump-by-role.yml
+  vars:
+    role: maintainer
+
+- name: "There're {{ mmbrs | length }} maintainers of {{ team.slug }} team"
+  set_fact:
+    team_maintainer: "{{ mmbrs }}"
+
+- name: "Dump ordinary members of {{ team.slug }} team"
+  include: team-members-dump-by-role.yml
+  vars:
+    role: member
+
+- name: "There're {{ mmbrs | length }} ordinary members in {{ team.slug }} team"
+  set_fact:
+    team_member: "{{ mmbrs }}"
+
+- name: "Dump the {{ team.slug }} team"
+  copy:
+    ## Github has complex default for team's privacy, so we don't have a default value.
+    content: |
+      {{ team.slug }}:
+      {% if team.name is defined and team.name != team.slug %}
+        name: {{ team.name }}
+      {% endif %}
+      {% if team.description is defined and team.description != '' %}
+        description: >-
+          {{ team.description }}
+      {% endif %}
+        privacy: {{ team.privacy }}
+      {% if team.parent is mapping %}
+        parent: {{ team.parent.slug }}
+      {% endif -%}
+      {% if team_maintainer | length > 0 %}
+        maintainer:
+      {{ team_maintainer | sort | to_nice_yaml | indent(4, true) }}
+      {%- endif %}
+      {% if team_member | length > 0 %}
+        member:
+      {{ team_member | sort | to_nice_yaml | indent(4, true) }}
+      {%- endif %}
+    dest: "{{ github_vars_dir }}/teams/{{ team.slug }}.yml"

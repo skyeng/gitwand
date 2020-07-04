@@ -1,0 +1,6 @@
+---
+- name: "Update {{ perm }} teams of {{ repo.name }}"
+  loop: "{{ perm.value }}"
+  loop_control:
+    loop_var: team
+  include: repo-perm-team.yml

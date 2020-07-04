@@ -1,0 +1,33 @@
+---
+- name: "Dump admins of {{ github_org }} org"
+  include: org-members-dump-by-role.yml
+  vars:
+    role: admin
+
+- name: "There're {{ mmbrs | length }} admins in {{ github_org }} organization"
+  set_fact:
+    org_admin: "{{ mmbrs }}"
+
+- name: "Dump ordinary members of {{ github_org }} org"
+  include: org-members-dump-by-role.yml
+  vars:
+    role: member
+
+- name: "There're {{ mmbrs | length }} ordinary members in {{ github_org }} organization"
+  set_fact:
+    org_member: "{{ mmbrs }}"
+
+- copy:
+    content: |
+      {{ github_org }}:
+        name: {{ orgs[github_org].name }}
+      {% if org_admin | length > 0 %}
+        admin:
+      {{ org_admin | sort | to_nice_yaml | indent(4, true) }}
+      {%- endif %}
+      {% if org_member | length > 0 %}
+        member:
+      {{ org_member | sort | to_nice_yaml | indent(4, true) }}
+      {%- endif %}
+        absent: []
+    dest: "{{ github_vars_dir }}/orgs/{{ github_org }}.yml"
