@@ -1,38 +1,37 @@
 ---
-- name: load orgs
+- name: "Load organizations"
   include_vars:
     dir: "{{ github_vars_dir }}/orgs"
-    name: orgs
     files_matching: >-
       {% if github_orgs__include is defined %}^{{ github_orgs__include }}\.yml{% endif %}
+    ignore_unknown_extensions: yes
+    name: orgs
 
 - name: "Update all the supplied {{ orgs[github_org].admin | length }} admins of the {{ github_org }} organization"
+  when: github_members__state == 'present'
   loop: "{{ orgs[github_org].admin }}"
   loop_control:
     loop_var: mmbr
   include_tasks: org-member-present.yml
   vars:
     role: admin
-  when: github_members__state == 'present'
 
 - name: "Update all the supplied {{ orgs[github_org].member | length }} members of the {{ github_org }} organization"
+  when: github_members__state == 'present'
   loop: "{{ orgs[github_org].member }}"
   loop_control:
     loop_var: mmbr
   include_tasks: org-member-present.yml
   vars:
     role: member
-  when: github_members__state == 'present'
 
 - name: "Remove all the supplied {{ orgs[github_org].absent | length }} members from the {{ github_org }} organization"
+  when: github_members__state == 'present'
   loop: "{{ orgs[github_org].absent | default([]) }}"
   loop_control:
     loop_var: mmbr
-  include_tasks: org-member-present.yml
-  vars:
-    role: absent
-  when: github_members__state == 'present'
+  include_tasks: org-member-absent.yml
 
-- name: "Dump all existing members"
-  include_tasks: org-members-dump.yml
+- name: "Dump all existing members of the {{ github_org }} organization"
   when: github_members__state == 'dump'
+  include_tasks: org-members-dump.yml

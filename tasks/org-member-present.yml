@@ -1,28 +1,17 @@
 ---
 - name: "Update {{ mmbr }}'s {{ role }} role at the {{ github_org }} organization"
   when:
-    - role != 'absent'
     - users[mmbr] is defined
     - users[mmbr].status.active | bool
   uri:
-    url: '{{ github_api }}/orgs/{{ github_org }}/memberships/{{ users[mmbr].github }}'
-    method: PUT
-    user: "{{ github_user }}"
-    password: "{{ github_token }}"
-    force_basic_auth: yes
+    body: "{{ body | to_json }}"
     body_format: json
-    body: "{ 'role': '{{ role }}' }"
-  register: response
-
-- name: "Remove {{ mmbr }} from the {{ github_org }} organization"
-  when:
-    - role == 'absent'
-    - users[mmbr] is defined
-  uri:
-    url: '{{ github_api }}/orgs/{{ github_org }}/memberships/{{ users[mmbr].github }}'
-    method: DELETE
-    user: "{{ github_user }}"
-    password: "{{ github_token }}"
     force_basic_auth: yes
-    status_code: 204
+    method: PUT
+    password: "{{ github_token }}"
+    url: '{{ github_api }}/orgs/{{ github_org }}/memberships/{{ users[mmbr].github }}'
+    user: "{{ github_user }}"
+  vars:
+    body:
+      role: "{{ role }}"
   register: response
