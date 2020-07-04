@@ -25,7 +25,7 @@
       {{ response | json_query("results[*].json[?permission=='pull'].name") | flatten}}
 
 - name: "Get all {{ repo.name }}'s direct collaborators"
-  include: repo-dump-collaborators.yml
+  include_tasks: repo-dump-collaborators.yml
   vars:
     affiliation: direct
 
@@ -34,7 +34,7 @@
     cllbrtrs_direct: "{{ cllbrtrs }}"
 
 - name: "Get all {{ repo.name }}'s outside collaborators"
-  include: repo-dump-collaborators.yml
+  include_tasks: repo-dump-collaborators.yml
   vars:
     affiliation: outside
 

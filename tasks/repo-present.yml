@@ -41,7 +41,7 @@
       loop: "{{ query('dict', repo.value.teams | default({})) }}"
       loop_control:
         loop_var: perm
-      include: repo-perm.yml
+      include_tasks: repo-perm.yml
 
     - name: Initialize the list of direct collaborators with an empty list
       set_fact:
@@ -58,7 +58,7 @@
       loop: "{{ cllbrtrs }}"
       loop_control:
         loop_var: clbr
-      include: repo-collaborator-present.yml
+      include_tasks: repo-collaborator-present.yml
       vars:
         permission: admin
 
@@ -66,6 +66,6 @@
       loop: "{{ repo.value.collaborators.outside | default([]) }}"
       loop_control:
         loop_var: clbr
-      include: repo-collaborator-present.yml
+      include_tasks: repo-collaborator-present.yml
       vars:
         permission: push

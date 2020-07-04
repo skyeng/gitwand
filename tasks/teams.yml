@@ -10,9 +10,9 @@
   loop: "{{ query('dict', teams) }}"
   loop_control:
     loop_var: team
-  include: team-present.yml
+  include_tasks: team-present.yml
   when: github_teams__state == 'present'
 
 - name: "Dump all existing teams into {{ github_vars_dir }}/teams directory"
-  include: teams-dump.yml
+  include_tasks: teams-dump.yml
   when: github_teams__state == 'dump'

@@ -20,4 +20,4 @@
   loop: "{{ response | json_query('results[*].json[*]') | flatten }}"
   loop_control:
     loop_var: repo
-  include: repo-dump.yml
+  include_tasks: repo-dump.yml

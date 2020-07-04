@@ -10,7 +10,7 @@
   loop: "{{ orgs[github_org].admin }}"
   loop_control:
     loop_var: mmbr
-  include: org-member-present.yml
+  include_tasks: org-member-present.yml
   vars:
     role: admin
   when: github_members__state == 'present'
@@ -19,7 +19,7 @@
   loop: "{{ orgs[github_org].member }}"
   loop_control:
     loop_var: mmbr
-  include: org-member-present.yml
+  include_tasks: org-member-present.yml
   vars:
     role: member
   when: github_members__state == 'present'
@@ -28,11 +28,11 @@
   loop: "{{ orgs[github_org].absent | default([]) }}"
   loop_control:
     loop_var: mmbr
-  include: org-member-present.yml
+  include_tasks: org-member-present.yml
   vars:
     role: absent
   when: github_members__state == 'present'
 
 - name: "Dump all existing members"
-  include: org-members-dump.yml
+  include_tasks: org-members-dump.yml
   when: github_members__state == 'dump'

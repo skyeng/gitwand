@@ -19,4 +19,4 @@
   loop: "{{ response | json_query('results[*].json[*]') | flatten }}"
   loop_control:
     loop_var: team
-  include: team-dump.yml
+  include_tasks: team-dump.yml

@@ -1,6 +1,6 @@
 ---
 - name: "Dump admins of {{ github_org }} org"
-  include: org-members-dump-by-role.yml
+  include_tasks: org-members-dump-by-role.yml
   vars:
     role: admin
 
@@ -9,7 +9,7 @@
     org_admin: "{{ mmbrs }}"
 
 - name: "Dump ordinary members of {{ github_org }} org"
-  include: org-members-dump-by-role.yml
+  include_tasks: org-members-dump-by-role.yml
   vars:
     role: member
 

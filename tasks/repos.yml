@@ -11,9 +11,9 @@
   loop: "{{ query('dict', repos) }}"
   loop_control:
     loop_var: repo
-  include: repo-present.yml
+  include_tasks: repo-present.yml
   when: github_repos__state == 'present'
 
 - name: "Dump all existing repositories into {{ github_vars_dir }}/repos directory"
-  include: repos-dump.yml
+  include_tasks: repos-dump.yml
   when: github_repos__state == 'dump'

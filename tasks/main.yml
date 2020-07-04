@@ -8,19 +8,19 @@
       {% if github_users__include is defined %}{{ github_users__include }}.yml{% endif %}
 
 - name: manage organization members
-  include: org-members.yml
+  include_tasks: org-members.yml
   when:
     - github_members__state is string
     - github_members__state | length > 0
 
 - name: manage teams
-  include: teams.yml
+  include_tasks: teams.yml
   when:
     - github_teams__state is string
     - github_teams__state | length > 0
 
 - name: manage repos
-  include: repos.yml
+  include_tasks: repos.yml
   when:
     - github_repos__state is string
     - github_repos__state | length > 0
