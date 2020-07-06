@@ -1,5 +1,5 @@
 ---
-- name: dump all Github teams
+- name: dump all teams
   # Include here as many items as you expect to be pages of teams.
   # At the time of this writing there are 116 teams.
   loop: "{{ github_pages }}"

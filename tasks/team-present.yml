@@ -1,13 +1,13 @@
 ---
 - name: "Check whether {{ team.key }} team exists"
   uri:
-    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}'
-    user: "{{ github_user }}"
-    password: "{{ github_token }}"
     force_basic_auth: yes
+    password: "{{ github_token }}"
     status_code:
       - 200
       - 404
+    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}'
+    user: "{{ github_user }}"
   register: response
 
 - set_fact:
@@ -18,10 +18,10 @@
   when: team.value.parent is defined
   block:
     - uri:
+        force_basic_auth: yes
+        password: "{{ github_token }}"
         url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.value.parent }}'
         user: "{{ github_user }}"
-        password: "{{ github_token }}"
-        force_basic_auth: yes
       register: parent
 
     - set_fact:
@@ -30,32 +30,32 @@
 
 - name: "Create new {{ team.key }} team"
   uri:
-    url: '{{ github_api }}/orgs/{{ github_org }}/teams'
-    method: POST
-    user: "{{ github_user }}"
-    password: "{{ github_token }}"
-    force_basic_auth: yes
-    body_format: json
     body: "{{ team_data | to_json }}"
+    body_format: json
+    force_basic_auth: yes
+    method: POST
+    password: "{{ github_token }}"
     status_code: 201
+    url: '{{ github_api }}/orgs/{{ github_org }}/teams'
+    user: "{{ github_user }}"
   when: response.status == 404
 
 - name: "Update existing {{ team.key }} team"
   uri:
-    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}'
-    method: PATCH
-    user: "{{ github_user }}"
-    password: "{{ github_token }}"
-    force_basic_auth: yes
-    body_format: json
     body: "{{ team_data | to_json }}"
+    body_format: json
+    force_basic_auth: yes
+    method: PATCH
+    password: "{{ github_token }}"
+    user: "{{ github_user }}"
+    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}'
   when: response.status == 200
 
 - name: "Update {{ team.key }}'s maintainers"
   loop: "{{ team.value.maintainer | default([]) }}"
   loop_control:
     loop_var: mmbr
-  include_tasks: team-membership.yml
+  include_tasks: team-members-present.yml
   vars:
     role: maintainer
 
@@ -63,7 +63,7 @@
   loop: "{{ team.value.member | default([]) }}"
   loop_control:
     loop_var: mmbr
-  include_tasks: team-membership.yml
+  include_tasks: team-members-present.yml
   vars:
     role: member
 
@@ -71,6 +71,4 @@
   loop: "{{ team.value.absent | default([]) }}"
   loop_control:
     loop_var: mmbr
-  include_tasks: team-membership.yml
-  vars:
-    role: absent
+  include_tasks: team-members-absent.yml

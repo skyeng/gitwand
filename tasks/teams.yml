@@ -1,18 +1,19 @@
 ---
-- name: load teams
+- name: "Load teams"
   include_vars:
     dir: "{{ github_vars_dir }}/teams"
-    name: teams
     files_matching: >-
       {% if github_teams__include is defined %}^{{ github_teams__include }}\.yml{% endif %}
+    ignore_unknown_extensions: yes
+    name: teams
 
 - name: "Update all the supplied {{ teams | length }} teams"
+  when: github_teams__state == 'present'
   loop: "{{ query('dict', teams) }}"
   loop_control:
     loop_var: team
   include_tasks: team-present.yml
-  when: github_teams__state == 'present'
 
 - name: "Dump all existing teams into {{ github_vars_dir }}/teams directory"
-  include_tasks: teams-dump.yml
   when: github_teams__state == 'dump'
+  include_tasks: teams-dump.yml
