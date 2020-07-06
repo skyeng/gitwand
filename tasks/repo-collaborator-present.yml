@@ -1,13 +1,15 @@
 ---
 - name: "Update {{ clbr }}'s collaboration {{ permission }} permission at {{ repo.key }} repo"
   uri:
-    url: "{{ github_api }}/repos/{{ github_org }}/{{ repo.key }}/collaborators/{{ clbr }}"
-    method: PUT
-    user: "{{ github_user }}"
-    password: "{{ github_token }}"
-    force_basic_auth: yes
+    body: "{{ body | to_json }}"
     body_format: json
-    body: >-
-      { 'permission': '{{ permission }}' }
+    force_basic_auth: yes
+    method: PUT
+    password: "{{ github_token }}"
     status_code: 204
+    url: "{{ github_api }}/repos/{{ github_org }}/{{ repo.key }}/collaborators/{{ clbr }}"
+    user: "{{ github_user }}"
+  vars:
+    body:
+      permission: "{{ permission }}"
   register: response

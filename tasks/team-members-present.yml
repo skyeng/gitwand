@@ -2,11 +2,14 @@
 - name: "Update {{ mmbr }}'s {{ role }} membership in {{ team.key }}"
   when: users[mmbr].github is defined
   uri:
-    body: "{ 'role': '{{ role }}' }"
+    body: "{{ body | to_json }}"
     body_format: json
     force_basic_auth: yes
     method: PUT
     password: "{{ github_token }}"
     url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}/memberships/{{ users[mmbr].github }}'
     user: "{{ github_user }}"
+  vars:
+    body:
+      role: "{{ role }}"
   register: response

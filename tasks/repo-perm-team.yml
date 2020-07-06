@@ -2,23 +2,26 @@
 - name: "Grant {{ perm.key }} permission for the {{ team }} team on the {{ repo.key }} repo"
   when: perm.key != 'absent'
   uri:
-    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team }}/repos/{{ github_org }}/{{ repo.key }}'
-    method: PUT
-    user: "{{ github_user }}"
-    password: "{{ github_token }}"
-    force_basic_auth: yes
+    body: "{{ body | to_json }}"
     body_format: json
-    body: "{ 'permission': '{{ perm.key }}' }"
+    force_basic_auth: yes
+    method: PUT
+    password: "{{ github_token }}"
     status_code: 204
+    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team }}/repos/{{ github_org }}/{{ repo.key }}'
+    user: "{{ github_user }}"
+  vars:
+    body:
+      permission: "{{ perm.key }}"
   register: response
 
 - name: "Revoke {{ perm.key }} permission for the {{ team }} team on the {{ repo.key }} repo"
   when: perm.key == 'absent'
   uri:
-    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team }}/repos/{{ github_org }}/{{ repo.key }}'
-    method: DELETE
-    user: "{{ github_user }}"
-    password: "{{ github_token }}"
     force_basic_auth: yes
+    method: DELETE
+    password: "{{ github_token }}"
     status_code: 204
+    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team }}/repos/{{ github_org }}/{{ repo.key }}'
+    user: "{{ github_user }}"
   register: response
