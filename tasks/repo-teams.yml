@@ -1,0 +1,22 @@
+---
+- name: "Get all {{ repo_name }}'s teams"
+  when: page == 1 or response.json | length > 0
+  loop: "{{ github_pages }}"
+  loop_control:
+    loop_var: page
+  uri:
+    force_basic_auth: yes
+    password: "{{ github_token }}"
+    url: "{{ github_api }}/repos/{{ github_org }}/{{ repo_name }}/teams\
+      ?per_page={{ github_per_page }}\
+      &page={{ page }}"
+    user: "{{ github_user }}"
+  register: response
+
+- set_fact:
+    repo_admin: >-
+      {{ response | json_query("results[*].json[?permission=='admin'].name") | flatten}}
+    repo_push: >-
+      {{ response | json_query("results[*].json[?permission=='push'].name") | flatten}}
+    repo_pull: >-
+      {{ response | json_query("results[*].json[?permission=='pull'].name") | flatten}}

@@ -1,0 +1,65 @@
+---
+- name: "Get all the {{ repo.key }} repository's teams"
+  include_tasks: repo-teams.yml
+  vars:
+    repo_name: "{{ repo.key }}"
+
+- name: "Update {{ repo.key }} repo's admin teams"
+  loop: "{{ query('dict', repo.value.teams.admin | default({})) }}"
+  loop_control:
+    loop_var: team
+  include_tasks: repo-team-present.yml
+  vars:
+    permission: admin
+
+- name: "Update {{ repo.key }} repo's push teams"
+  loop: "{{ query('dict', repo.value.teams.push | default({})) }}"
+  loop_control:
+    loop_var: team
+  include_tasks: repo-team-present.yml
+  vars:
+    permission: push
+
+- name: "Update {{ repo.key }} repo's pull teams"
+  loop: "{{ query('dict', repo.value.teams.pull | default({})) }}"
+  loop_control:
+    loop_var: team
+  include_tasks: repo-team-present.yml
+  vars:
+    permission: pull
+
+- name: "Remove unspecified teams from the {{ repo.key }} repository"
+  loop: >-
+    {{ query('dict', repo_admin - repo.value.teams.admin | default({}) +
+                     repo_push  - repo.value.teams.push  | default({}) +
+                     repo_pull  - repo.value.teams.pull  | default({})) }}
+  loop_control:
+    loop_var: team
+  include_tasks: repo-team-absent.yml
+
+- name: Initialize the list of direct collaborators with an empty list
+  set_fact:
+    cllbrtrs: []
+
+- name: "Prepare a list of {{ repo.key }}'s direct collaborators"
+  loop: "{{ repo.value.collaborators.direct | default([]) }}"
+  loop_control:
+    loop_var: clbr
+  set_fact:
+    cllbrtrs: "{{ cllbrtrs + [ users[clbr].github ] }}"
+
+- name: "Update {{ repo.key }} repo's direct collaborators"
+  loop: "{{ cllbrtrs }}"
+  loop_control:
+    loop_var: clbr
+  include_tasks: repo-collaborator-present.yml
+  vars:
+    permission: admin
+
+- name: "Update {{ repo.key }} repo's outside collaborators"
+  loop: "{{ repo.value.collaborators.outside | default([]) }}"
+  loop_control:
+    loop_var: clbr
+  include_tasks: repo-collaborator-present.yml
+  vars:
+    permission: push

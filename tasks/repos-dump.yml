@@ -21,3 +21,5 @@
   loop_control:
     loop_var: repo
   include_tasks: repo-dump.yml
+  vars:
+    repo_name: "{{ repo.name }}"

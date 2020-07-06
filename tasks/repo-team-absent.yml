@@ -1,0 +1,10 @@
+---
+- name: "Expell the {{ team }} team from the {{ repo.key }} repository"
+  uri:
+    force_basic_auth: yes
+    method: DELETE
+    password: "{{ github_token }}"
+    status_code: 204
+    url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team }}/repos/{{ github_org }}/{{ repo.key }}'
+    user: "{{ github_user }}"
+  register: response

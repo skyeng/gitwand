@@ -32,9 +32,9 @@
     password: "{{ github_token }}"
     url: '{{ github_api }}/repos/{{ github_org }}/{{ repo.key }}'
     user: "{{ github_user }}"
-  # продолжаем, если репа заархивирована
+  # just continue in case of an archived repo
   ignore_errors: "{{ repo.value.archived | default(false) | bool }}"
 
 - name: "Update {{ repo.key }} repository"
   when: not (repo.value.archived | default(false))
-  include: repo-update.yml
+  include: repo-permissions.yml
