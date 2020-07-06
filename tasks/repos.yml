@@ -1,19 +1,19 @@
 ---
-- name: load repositories
+- name: "Load repositories"
   include_vars:
-    ignore_unknown_extensions: yes
     dir: "{{ github_vars_dir }}/repos"
-    name: repos
     files_matching: >-
       {% if github_repos__include is defined %}^{{ github_repos__include }}\.yml{% endif %}
+    ignore_unknown_extensions: yes
+    name: repos
 
 - name: "Update all the supplied {{ repos | length }} repositories"
+  when: github_repos__state == 'present'
   loop: "{{ query('dict', repos) }}"
   loop_control:
     loop_var: repo
   include_tasks: repo-present.yml
-  when: github_repos__state == 'present'
 
 - name: "Dump all existing repositories into {{ github_vars_dir }}/repos directory"
-  include_tasks: repos-dump.yml
   when: github_repos__state == 'dump'
+  include_tasks: repos-dump.yml

@@ -1,0 +1,33 @@
+---
+- name: "Update {{ repo.key }}'s teams"
+  loop: "{{ query('dict', repo.value.teams | default({})) }}"
+  loop_control:
+    loop_var: perm
+  include_tasks: repo-perm.yml
+
+- name: Initialize the list of direct collaborators with an empty list
+  set_fact:
+    cllbrtrs: []
+
+- name: "Prepare a list of {{ repo.key }}'s direct collaborators"
+  loop: "{{ repo.value.collaborators.direct | default([]) }}"
+  loop_control:
+    loop_var: clbr
+  set_fact:
+    cllbrtrs: "{{ cllbrtrs + [ users[clbr].github ] }}"
+
+- name: "Update {{ repo.key }} repo's direct collaborators"
+  loop: "{{ cllbrtrs }}"
+  loop_control:
+    loop_var: clbr
+  include_tasks: repo-collaborator-present.yml
+  vars:
+    permission: admin
+
+- name: "Update {{ repo.key }} repo's outside collaborators"
+  loop: "{{ repo.value.collaborators.outside | default([]) }}"
+  loop_control:
+    loop_var: clbr
+  include_tasks: repo-collaborator-present.yml
+  vars:
+    permission: push
