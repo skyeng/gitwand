@@ -1,0 +1,10 @@
+---
+- name: "Remove {{ clbr }}'s collaborator from the {{ repo.key }} repository"
+  uri:
+    force_basic_auth: yes
+    method: DELETE
+    password: "{{ github_token }}"
+    status_code: 204
+    url: "{{ github_api }}/repos/{{ github_org }}/{{ repo.key }}/collaborators/{{ clbr }}"
+    user: "{{ github_user }}"
+  register: response

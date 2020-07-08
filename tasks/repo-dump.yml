@@ -3,22 +3,18 @@
   include_tasks: repo-teams.yml
 
 - name: "Get all {{ repo.name }}'s direct collaborators"
-  include_tasks: repo-dump-collaborators.yml
+  include_tasks: repo-collaborators.yml
   vars:
     affiliation: direct
-
-- name: "Jot down all {{ cllbrtrs | length }} {{ repo.name }}'s direct collaborators"
-  set_fact:
-    cllbrtrs_direct: "{{ cllbrtrs }}"
+    cllbrtrs_var: cllbrtrs_direct
+    repo_name: "{{ repo.name }}"
 
 - name: "Get all {{ repo.name }}'s outside collaborators"
-  include_tasks: repo-dump-collaborators.yml
+  include_tasks: repo-collaborators.yml
   vars:
     affiliation: outside
-
-- name: "Jot down all {{ cllbrtrs | length }} {{ repo.name }}'s outside collaborators"
-  set_fact:
-    cllbrtrs_outside: "{{ cllbrtrs }}"
+    cllbrtrs_var: cllbrtrs_outside
+    repo_name: "{{ repo.name }}"
 
 - name: "Dump the {{ repo.name }} repo"
   copy:

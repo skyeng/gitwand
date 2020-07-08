@@ -1,4 +1,5 @@
 ---
+### Deal with teams.
 - name: "Get all the {{ repo.key }} repository's teams"
   include_tasks: repo-teams.yml
   vars:
@@ -37,6 +38,21 @@
     loop_var: team
   include_tasks: repo-team-absent.yml
 
+### Deal with collaborators
+- name: "Get all {{ repo.key }}'s direct collaborators"
+  include_tasks: repo-collaborators.yml
+  vars:
+    affiliation: direct
+    cllbrtrs_var: cllbrtrs_direct
+    repo_name: "{{ repo.key }}"
+
+- name: "Get all {{ repo.key }}'s outside collaborators"
+  include_tasks: repo-collaborators.yml
+  vars:
+    affiliation: outside
+    cllbrtrs_var: cllbrtrs_outside
+    repo_name: "{{ repo.key }}"
+
 - name: Initialize the list of direct collaborators with an empty list
   set_fact:
     cllbrtrs: []
@@ -63,3 +79,20 @@
   include_tasks: repo-collaborator-present.yml
   vars:
     permission: push
+
+- name: Initialize the list of direct collaborators to be deleted with an empty list
+  set_fact:
+    cllbrtrs_delete: []
+
+- name: "Prepare a list of {{ repo.key }}'s direct collaborators to be deleted"
+  loop: "{{ cllbrtrs_direct | difference(repo.value.collaborators.direct | default([])) }}"
+  loop_control:
+    loop_var: clbr
+  set_fact:
+    cllbrtrs_delete: "{{ cllbrtrs + [ users[clbr].github ] }}"
+
+- name: "Remove unknown collaborators from the {{ repo.key }} repository"
+  loop: "{{ cllbrtrs_delete + cllbrtrs_outside | difference(repo.value.collaborators.outside | default([])) }}"
+  loop_control:
+    loop_var: team
+  include_tasks: repo-collaborator-absent.yml

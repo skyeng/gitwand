@@ -1,5 +1,6 @@
+### We'll have a list of collaborators with a specified role in a variable referred to by cllbrtrs_var variable.
 ---
-- name: "Get all {{ repo.name }}'s {{ affiliation }} collaborators"
+- name: "Get all {{ repo_name }}'s {{ affiliation }} collaborators"
   when: page == 1 or response.json | length > 0
   loop: "{{ github_pages }}"
   loop_control:
@@ -7,7 +8,7 @@
   uri:
     force_basic_auth: yes
     password: "{{ github_token }}"
-    url: "{{ github_api }}/repos/{{ github_org }}/{{ repo.name }}/collaborators\
+    url: "{{ github_api }}/repos/{{ github_org }}/{{ repo_name }}/collaborators\
       ?per_page={{ github_per_page }}\
       &page={{ page }}\
       &affiliation={{ affiliation }}"
@@ -18,7 +19,7 @@
   set_fact:
     cllbrtrs: []
 
-- name: "Dump all the {{ response | json_query('results[*].json[*]') | flatten | length }} {{ repo.name }} repo's {{ affiliation }} collaborators"
+- name: "Dump all the {{ response | json_query('results[*].json[*]') | flatten | length }} {{ repo_name }} repo's {{ affiliation }} collaborators"
   when: affiliation == 'direct'
   loop: "{{ response | json_query('results[*].json[*][login]') | flatten }}"
   loop_control:
@@ -29,7 +30,10 @@
     query: "[? value.github == '{{ collaborator }}'].key"
     username: "{{ lookup('dict', users) | json_query(query) }}" # a list of zero or one element
 
-- name: "Dump all the {{ response | json_query('results[*].json[*]') | flatten | length }} {{ repo.name }} repo's {{ affiliation }} collaborators"
+- name: "Dump all the {{ response | json_query('results[*].json[*]') | flatten | length }} {{ repo_name }} repo's {{ affiliation }} collaborators"
   when: affiliation == 'outside'
   set_fact:
     cllbrtrs: "{{ response | json_query('results[*].json[*][login]') | flatten }}"
+
+- name: "Jot down all {{ cllbrtrs | length }} {{ repo_name }}'s {{ affiliation }} collaborators into the {{ cllbrtrs_var }} variable"
+  set_fact: "{{ cllbrtrs_var }}={{ cllbrtrs }}"
