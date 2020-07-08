@@ -31,4 +31,4 @@
       {{ org_member | sort | to_nice_yaml | indent(4, true) }}
       {%- endif %}
         absent: []
-    dest: "{{ github_vars_dir }}/orgs/{{ github_org }}.yml"
+    dest: "{{ role_path }}/{{ github_vars_dir }}/orgs/{{ github_org }}.yml"

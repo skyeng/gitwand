@@ -1,7 +1,7 @@
 ---
 - name: "Load organizations"
   include_vars:
-    dir: "{{ github_vars_dir }}/orgs"
+    dir: "{{ role_path }}/{{ github_vars_dir }}/orgs"
     files_matching: >-
       {% if github_orgs__include is defined %}^{{ github_orgs__include }}\.yml{% endif %}
     ignore_unknown_extensions: yes

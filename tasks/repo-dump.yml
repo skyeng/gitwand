@@ -78,4 +78,4 @@
       {{ cllbrtrs_outside | sort | to_nice_yaml | indent(6, true) }}
       {%- endif %}
       {%- endif %}
-    dest: "{{ github_vars_dir }}/repos/{{ repo.name }}.yml"
+    dest: "{{ role_path }}/{{ github_vars_dir }}/repos/{{ repo.name }}.yml"

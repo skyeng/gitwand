@@ -43,4 +43,4 @@
         member:
       {{ team_member | sort | to_nice_yaml | indent(4, true) }}
       {%- endif %}
-    dest: "{{ github_vars_dir }}/teams/{{ team.slug }}.yml"
+    dest: "{{ role_path }}/{{ github_vars_dir }}/teams/{{ team.slug }}.yml"

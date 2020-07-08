@@ -1,7 +1,7 @@
 ---
 - name: "Load users"
   include_vars:
-    dir: "{{ github_users_dir }}"
+    dir: "{{ role_path }}/{{ github_users_dir }}"
     files_matching: >-
       {% if github_users__include is defined %}^{{ github_users__include }}\.yml{% endif %}
     ignore_unknown_extensions: yes

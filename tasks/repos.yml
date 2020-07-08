@@ -1,7 +1,7 @@
 ---
 - name: "Load repositories"
   include_vars:
-    dir: "{{ github_vars_dir }}/repos"
+    dir: "{{ role_path }}/{{ github_vars_dir }}/repos"
     files_matching: >-
       {% if github_repos__include is defined %}^{{ github_repos__include }}\.yml{% endif %}
     ignore_unknown_extensions: yes
@@ -14,6 +14,6 @@
     loop_var: repo
   include_tasks: repo-present.yml
 
-- name: "Dump all existing repositories into {{ github_vars_dir }}/repos directory"
+- name: "Dump all existing repositories into {{ role_path }}/{{ github_vars_dir }}/repos directory"
   when: github_repos__state == 'dump'
   include_tasks: repos-dump.yml
