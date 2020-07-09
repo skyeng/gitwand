@@ -81,10 +81,12 @@
   vars:
     role: member
 
-- name: "Remove unspecified members from the {{ team.key }} team"
-  loop: >-
-    {{    team_maintainer | difference(team.value.maintainer | default([]))  |
-    union(team_member     | difference(team.value.member     | default([]))) }}
+- name: "Remove {{ unknown | length }} unspecified members from the {{ team.key }} team"
+  loop: "{{ unknown }}"
   loop_control:
     loop_var: mmbr
   include_tasks: team-member-absent.yml
+  vars:
+    unknown: >-
+      {{    team_maintainer | difference(team.value.maintainer | default([]))  |
+      union(team_member     | difference(team.value.member     | default([]))) }}

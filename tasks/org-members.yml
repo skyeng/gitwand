@@ -7,6 +7,18 @@
     ignore_unknown_extensions: yes
     name: orgs
 
+- name: "Get admins of the {{ github_org }} organization"
+  include_tasks: org-members-role.yml
+  vars:
+    role: admin
+    mmbrs_var: org_admin
+
+- name: "Get ordinary members of the {{ github_org }} organization"
+  include_tasks: org-members-role.yml
+  vars:
+    role: member
+    mmbrs_var: org_member
+
 - name: "Update all the supplied {{ orgs[github_org].admin | length }} admins of the {{ github_org }} organization"
   when: github_members__state == 'present'
   loop: "{{ orgs[github_org].admin }}"
@@ -25,12 +37,15 @@
   vars:
     role: member
 
-- name: "Remove all the supplied {{ orgs[github_org].absent | length }} members from the {{ github_org }} organization"
-  when: github_members__state == 'present'
-  loop: "{{ orgs[github_org].absent | default([]) }}"
+- name: "Remove {{ unknown | length }} unspecified members from the {{ github_org }} organization"
+  loop: "{{ unknown }}"
   loop_control:
     loop_var: mmbr
   include_tasks: org-member-absent.yml
+  vars:
+    unknown: >-
+      {{    org_admin  | difference(orgs[github_org].admin  | default([]))  |
+      union(org_member | difference(orgs[github_org].member | default([]))) }}
 
 - name: "Dump all existing members of the {{ github_org }} organization"
   when: github_members__state == 'dump'

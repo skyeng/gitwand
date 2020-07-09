@@ -1,21 +1,15 @@
 ---
-- name: "Dump admins of the {{ github_org }} organization"
-  include_tasks: org-members-dump-role.yml
+- name: "Get admins of the {{ github_org }} organization"
+  include_tasks: org-members-role.yml
   vars:
     role: admin
+    mmbrs_var: org_admin
 
-- name: "There're {{ mmbrs | length }} admins in the {{ github_org }} organization"
-  set_fact:
-    org_admin: "{{ mmbrs }}"
-
-- name: "Dump ordinary members of the {{ github_org }} organization"
-  include_tasks: org-members-dump-role.yml
+- name: "Get ordinary members of the {{ github_org }} organization"
+  include_tasks: org-members-role.yml
   vars:
     role: member
-
-- name: "There're {{ mmbrs | length }} ordinary members in the {{ github_org }} organization"
-  set_fact:
-    org_member: "{{ mmbrs }}"
+    mmbrs_var: org_member
 
 - name: "Dump all members of the {{ github_org }} organization"
   copy:
@@ -30,5 +24,4 @@
         member:
       {{ org_member | sort | to_nice_yaml | indent(4, true) }}
       {%- endif %}
-        absent: []
     dest: "{{ role_path }}/{{ github_vars_dir }}/orgs/{{ github_org }}.yml"

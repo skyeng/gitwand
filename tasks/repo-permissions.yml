@@ -29,14 +29,16 @@
   vars:
     permission: pull
 
-- name: "Remove unspecified teams from the {{ repo.key }} repository"
-  loop: >-
-    {{    repo_admin | difference(repo.value.teams.admin | default([]))  |
-    union(repo_push  | difference(repo.value.teams.push  | default([]))) |
-    union(repo_pull  | difference(repo.value.teams.pull  | default([]))) }}
+- name: "Remove {{ unknown | length }} unspecified teams from the {{ repo.key }} repository"
+  loop: "{{ unknown }}"
   loop_control:
     loop_var: team
   include_tasks: repo-team-absent.yml
+  vars:
+    unknown: >-
+      {{    repo_admin | difference(repo.value.teams.admin | default([]))  |
+      union(repo_push  | difference(repo.value.teams.push  | default([]))) |
+      union(repo_pull  | difference(repo.value.teams.pull  | default([]))) }}
 
 ### Deal with collaborators
 - name: "Get all {{ repo.key }}'s direct collaborators"
@@ -91,8 +93,12 @@
   set_fact:
     cllbrtrs_delete: "{{ cllbrtrs + [ users[clbr].github ] }}"
 
-- name: "Remove unknown collaborators from the {{ repo.key }} repository"
-  loop: "{{ cllbrtrs_delete + cllbrtrs_outside | difference(repo.value.collaborators.outside | default([])) }}"
+- name: "Remove {{ unknown | length }} unspecified collaborators from the {{ repo.key }} repository"
+  loop: "{{ unknown }}"
   loop_control:
     loop_var: team
   include_tasks: repo-collaborator-absent.yml
+  vars:
+    unknown: >-
+      {{ cllbrtrs_delete +
+         cllbrtrs_outside | difference(repo.value.collaborators.outside | default([])) }}
