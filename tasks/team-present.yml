@@ -29,6 +29,7 @@
           {{ team_data | combine({ 'parent_team_id': parent.json.id }) }}
 
 - name: "Create new {{ team.key }} team"
+  when: response.status == 404
   uri:
     body: "{{ team_data | to_json }}"
     body_format: json
@@ -38,9 +39,9 @@
     status_code: 201
     url: '{{ github_api }}/orgs/{{ github_org }}/teams'
     user: "{{ github_user }}"
-  when: response.status == 404
 
 - name: "Update existing {{ team.key }} team"
+  when: response.status == 200
   uri:
     body: "{{ team_data | to_json }}"
     body_format: json
@@ -49,7 +50,20 @@
     password: "{{ github_token }}"
     user: "{{ github_user }}"
     url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}'
-  when: response.status == 200
+
+- name: "Get maintainers of {{ team.key }} team"
+  include_tasks: team-members.yml
+  vars:
+    role: maintainer
+    mmbrs_var: team_maintainer
+    team_slug: "{{ team.key }}"
+
+- name: "Get ordinary members of {{ team.key }} team"
+  include_tasks: team-members.yml
+  vars:
+    role: member
+    mmbrs_var: team_member
+    team_slug: "{{ team.key }}"
 
 - name: "Update {{ team.key }}'s maintainers"
   loop: "{{ team.value.maintainer | default([]) }}"
@@ -67,8 +81,10 @@
   vars:
     role: member
 
-- name: "Expel {{ team.key }}'s members"
-  loop: "{{ team.value.absent | default([]) }}"
+- name: "Remove unspecified members from the {{ team.key }} team"
+  loop: >-
+    {{    team_maintainer | difference(team.value.maintainer | default([]))  |
+    union(team_member     | difference(team.value.member     | default([]))) }}
   loop_control:
     loop_var: mmbr
   include_tasks: team-member-absent.yml

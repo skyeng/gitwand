@@ -6,14 +6,14 @@
   vars:
     role: maintainer
     mmbrs_var: team_maintainer
-    team_slug: team.slug
+    team_slug: "{{ team.slug }}"
 
 - name: "Get ordinary members of {{ team.slug }} team"
   include_tasks: team-members.yml
   vars:
     role: member
     mmbrs_var: team_member
-    team_slug: team.slug
+    team_slug: "{{ team.slug }}"
 
 - name: "Dump the {{ team.slug }} team"
   copy:
