@@ -7,11 +7,11 @@
     ignore_unknown_extensions: yes
     name: users
 
-- name: "Manage organization members"
+- name: "Manage organization's members"
   when:
     - github_members__state is string
     - github_members__state | length > 0
-  include_tasks: org-members.yml
+  include_tasks: organization.yml
 
 - name: "Manage teams"
   when:

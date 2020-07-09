@@ -1,0 +1,16 @@
+---
+- name: "Load organizations"
+  include_vars:
+    dir: "{{ role_path }}/{{ github_vars_dir }}/orgs"
+    files_matching: >-
+      {% if github_orgs__include is defined %}^{{ github_orgs__include }}\.yml{% endif %}
+    ignore_unknown_extensions: yes
+    name: orgs
+
+- name: "Update members of the {{ github_org }} organization"
+  when: github_members__state == 'present'
+  include_tasks: org-members.yml
+
+- name: "Dump all existing members of the {{ github_org }} organization"
+  when: github_members__state == 'dump'
+  include_tasks: org-members-dump.yml

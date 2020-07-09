@@ -1,12 +1,4 @@
 ---
-- name: "Load organizations"
-  include_vars:
-    dir: "{{ role_path }}/{{ github_vars_dir }}/orgs"
-    files_matching: >-
-      {% if github_orgs__include is defined %}^{{ github_orgs__include }}\.yml{% endif %}
-    ignore_unknown_extensions: yes
-    name: orgs
-
 - name: "Get admins of the {{ github_org }} organization"
   include_tasks: org-members-role.yml
   vars:
@@ -20,7 +12,6 @@
     mmbrs_var: org_member
 
 - name: "Update all the supplied {{ orgs[github_org].admin | length }} admins of the {{ github_org }} organization"
-  when: github_members__state == 'present'
   loop: "{{ orgs[github_org].admin }}"
   loop_control:
     loop_var: mmbr
@@ -29,7 +20,6 @@
     role: admin
 
 - name: "Update all the supplied {{ orgs[github_org].member | length }} members of the {{ github_org }} organization"
-  when: github_members__state == 'present'
   loop: "{{ orgs[github_org].member }}"
   loop_control:
     loop_var: mmbr
@@ -46,7 +36,3 @@
     unknown: >-
       {{    org_admin  | difference(orgs[github_org].admin  | default([]))  |
       union(org_member | difference(orgs[github_org].member | default([]))) }}
-
-- name: "Dump all existing members of the {{ github_org }} organization"
-  when: github_members__state == 'dump'
-  include_tasks: org-members-dump.yml
