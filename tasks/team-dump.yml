@@ -1,23 +1,19 @@
 ---
 ## Github does not show role of a member in the list of team members.
 ## Therefore we have to retrieve all members separately by their roles.
-- name: "Dump maintainers of {{ team.slug }} team"
-  include_tasks: team-members-dump-by-role.yml
+- name: "Get maintainers of {{ team.slug }} team"
+  include_tasks: team-members.yml
   vars:
     role: maintainer
+    mmbrs_var: team_maintainer
+    team_slug: team.slug
 
-- name: "There're {{ mmbrs | length }} maintainers of {{ team.slug }} team"
-  set_fact:
-    team_maintainer: "{{ mmbrs }}"
-
-- name: "Dump ordinary members of {{ team.slug }} team"
-  include_tasks: team-members-dump-by-role.yml
+- name: "Get ordinary members of {{ team.slug }} team"
+  include_tasks: team-members.yml
   vars:
     role: member
-
-- name: "There're {{ mmbrs | length }} ordinary members in {{ team.slug }} team"
-  set_fact:
-    team_member: "{{ mmbrs }}"
+    mmbrs_var: team_member
+    team_slug: team.slug
 
 - name: "Dump the {{ team.slug }} team"
   copy:

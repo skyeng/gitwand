@@ -55,7 +55,7 @@
   loop: "{{ team.value.maintainer | default([]) }}"
   loop_control:
     loop_var: mmbr
-  include_tasks: team-members-present.yml
+  include_tasks: team-member-present.yml
   vars:
     role: maintainer
 
@@ -63,7 +63,7 @@
   loop: "{{ team.value.member | default([]) }}"
   loop_control:
     loop_var: mmbr
-  include_tasks: team-members-present.yml
+  include_tasks: team-member-present.yml
   vars:
     role: member
 
@@ -71,4 +71,4 @@
   loop: "{{ team.value.absent | default([]) }}"
   loop_control:
     loop_var: mmbr
-  include_tasks: team-members-absent.yml
+  include_tasks: team-member-absent.yml

@@ -3,12 +3,12 @@
   set_fact:
     mmbrs: []
 
-- name: "Get all {{ team.slug }} team's {{ role }}s"
+- name: "Get all {{ team_slug }} team's {{ role }}s"
   loop: "{{ github_pages }}"
   loop_control:
     loop_var: page
   uri:
-    url: "{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.slug }}/members\
+    url: "{{ github_api }}/orgs/{{ github_org }}/teams/{{ team_slug }}/members\
       ?per_page={{ github_per_page }}\
       &page={{ page }}\
       &role={{ role }}"
@@ -20,9 +20,7 @@
   # the last response returned anything.  If the last response was empty, than it's time to finish the loop.
   when: page == 1 or response.json | length > 0
 
-- name: >-
-    Dump all the {{ response | json_query('results[*].json[*]') | flatten | length }}
-    {{ team.slug }} team's {{ role }}s
+- name: "Dump all the {{ response | json_query('results[*].json[*]') | flatten | length }} {{ team_slug }} team's {{ role }}s"
   loop: "{{ response | json_query('results[*].json[*][login]') | flatten }}"
   loop_control:
     loop_var: member
@@ -31,3 +29,6 @@
   vars:
     query: "[? value.github == '{{ member }}'].key"
     username: "{{ lookup('dict', users) | json_query(query) }}" # a list of zero or one element
+
+- name: "Jot down all {{ mmbrs | length }} {{ team_slug }}'s {{ role }}s into the {{ mmbrs_var }} variable"
+  set_fact: "{{ mmbrs_var }}={{ mmbrs }}"

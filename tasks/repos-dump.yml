@@ -1,5 +1,5 @@
 ---
-- name: "Dump all Github repos"
+- name: "Dump all repositories"
   when: page == 1 or response.json | length > 0
   loop: "{{ github_pages }}"
   loop_control:

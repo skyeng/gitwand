@@ -1,21 +1,18 @@
 ---
-- name: dump all teams
-  # Include here as many items as you expect to be pages of teams.
-  # At the time of this writing there are 116 teams.
+- name: "Dump all teams"
+  when: page == 1 or response.json | length > 0
   loop: "{{ github_pages }}"
   loop_control:
     loop_var: page
   uri:
+    force_basic_auth: yes
+    password: "{{ github_token }}"
     url: '{{ github_api }}/orgs/{{ github_org }}/teams?per_page={{ github_per_page }}&page={{ page }}'
     user: "{{ github_user }}"
-    password: "{{ github_token }}"
-    force_basic_auth: yes
   register: response
-  # Do the next loop iteration with the very first page (when the response does not exist yet) or if
-  # the last response returned anything.  If the last response was empty, than it's time to finish the loop.
-  when: page == 1 or response.json | length > 0
 
 - name: "Dump all the {{ response | json_query('results[*].json[*]') | flatten | length }} teams"
+  when: github_teams__include is not defined or team.name == github_teams__include
   loop: "{{ response | json_query('results[*].json[*]') | flatten }}"
   loop_control:
     loop_var: team
