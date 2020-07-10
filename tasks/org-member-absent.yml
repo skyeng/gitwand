@@ -2,10 +2,9 @@
 - name: "Remove {{ mmbr }} from the {{ github_org }} organization"
   when: users[mmbr] is defined
   uri:
-    force_basic_auth: yes
+    headers:
+      Authorization: "token {{ github_token }}"
     method: DELETE
-    password: "{{ github_token }}"
     status_code: 204
     url: '{{ github_api }}/orgs/{{ github_org }}/memberships/{{ users[mmbr].github }}'
-    user: "{{ github_user }}"
   register: response

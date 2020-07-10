@@ -3,12 +3,11 @@
   uri:
     body: "{{ body | to_json }}"
     body_format: json
-    force_basic_auth: yes
+    headers:
+      Authorization: "token {{ github_token }}"
     method: PUT
-    password: "{{ github_token }}"
     status_code: 204
     url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team }}/repos/{{ github_org }}/{{ repo.key }}'
-    user: "{{ github_user }}"
   vars:
     body:
       permission: "{{ permission }}"

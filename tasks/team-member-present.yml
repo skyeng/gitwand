@@ -4,11 +4,10 @@
   uri:
     body: "{{ body | to_json }}"
     body_format: json
-    force_basic_auth: yes
+    headers:
+      Authorization: "token {{ github_token }}"
     method: PUT
-    password: "{{ github_token }}"
     url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}/memberships/{{ users[mmbr].github }}'
-    user: "{{ github_user }}"
   vars:
     body:
       role: "{{ role }}"

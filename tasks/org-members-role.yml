@@ -12,13 +12,12 @@
   loop_control:
     loop_var: page
   uri:
-    force_basic_auth: yes
-    password: "{{ github_token }}"
+    headers:
+      Authorization: "token {{ github_token }}"
     url: "{{ github_api }}/orgs/{{ github_org }}/members\
       ?per_page={{ github_per_page }}\
       &page={{ page }}\
       &role={{ role }}"
-    user: "{{ github_user }}"
   register: response
 
 - name: "Dump all the {{ response | json_query('results[*].json[*]') | flatten | length }} {{ github_org }} organization's {{ role }}s"

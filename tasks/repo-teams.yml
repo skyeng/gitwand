@@ -5,12 +5,11 @@
   loop_control:
     loop_var: page
   uri:
-    force_basic_auth: yes
-    password: "{{ github_token }}"
+    headers:
+      Authorization: "token {{ github_token }}"
     url: "{{ github_api }}/repos/{{ github_org }}/{{ repo_name }}/teams\
       ?per_page={{ github_per_page }}\
       &page={{ page }}"
-    user: "{{ github_user }}"
   register: response
 
 - set_fact:

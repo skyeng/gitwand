@@ -1,13 +1,12 @@
 ---
 - name: "Check whether {{ repo.key }} repository exists"
   uri:
-    force_basic_auth: yes
-    password: "{{ github_token }}"
+    headers:
+      Authorization: "token {{ github_token }}"
     status_code:
       - 200
       - 404
     url: '{{ github_api }}/repos/{{ github_org }}/{{ repo.key }}'
-    user: "{{ github_user }}"
   register: response
 
 - name: "Create new {{ repo.key }} repository"
@@ -15,23 +14,21 @@
   uri:
     body: "{{ repo.value | combine({ 'name': repo.key }) | to_json }}"
     body_format: json
-    force_basic_auth: yes
+    headers:
+      Authorization: "token {{ github_token }}"
     method: POST
-    password: "{{ github_token }}"
     status_code: 201
     url: '{{ github_api }}/orgs/{{ github_org }}/repos'
-    user: "{{ github_user }}"
 
 - name: "Update existing {{ repo.key }} repository"
   when: response.status == 200
   uri:
     body: "{{ repo.value | combine({ 'name': repo.key }) | to_json }}"
     body_format: json
-    force_basic_auth: yes
+    headers:
+      Authorization: "token {{ github_token }}"
     method: PATCH
-    password: "{{ github_token }}"
     url: '{{ github_api }}/repos/{{ github_org }}/{{ repo.key }}'
-    user: "{{ github_user }}"
   # just continue in case of an archived repo
   ignore_errors: "{{ repo.value.archived | default(false) | bool }}"
 

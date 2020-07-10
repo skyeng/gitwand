@@ -1,13 +1,12 @@
 ---
 - name: "Check whether {{ team.key }} team exists"
   uri:
-    force_basic_auth: yes
-    password: "{{ github_token }}"
+    headers:
+      Authorization: "token {{ github_token }}"
     status_code:
       - 200
       - 404
     url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}'
-    user: "{{ github_user }}"
   register: response
 
 - set_fact:
@@ -18,10 +17,9 @@
   when: team.value.parent is defined
   block:
     - uri:
-        force_basic_auth: yes
-        password: "{{ github_token }}"
+        headers:
+          Authorization: "token {{ github_token }}"
         url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.value.parent }}'
-        user: "{{ github_user }}"
       register: parent
 
     - set_fact:
@@ -33,22 +31,20 @@
   uri:
     body: "{{ team_data | to_json }}"
     body_format: json
-    force_basic_auth: yes
+    headers:
+      Authorization: "token {{ github_token }}"
     method: POST
-    password: "{{ github_token }}"
     status_code: 201
     url: '{{ github_api }}/orgs/{{ github_org }}/teams'
-    user: "{{ github_user }}"
 
 - name: "Update existing {{ team.key }} team"
   when: response.status == 200
   uri:
     body: "{{ team_data | to_json }}"
     body_format: json
-    force_basic_auth: yes
+    headers:
+      Authorization: "token {{ github_token }}"
     method: PATCH
-    password: "{{ github_token }}"
-    user: "{{ github_user }}"
     url: '{{ github_api }}/orgs/{{ github_org }}/teams/{{ team.key }}'
 
 - name: "Get maintainers of {{ team.key }} team"
