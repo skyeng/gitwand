@@ -15,3 +15,10 @@
     body:
       role: "{{ role }}"
   register: response
+
+- name: "Remove inactive {{ mmbr }} from the {{ github_org }} organization"
+  when:
+    - users[mmbr] is defined
+    - not users[mmbr].status.active | bool
+  include: org-member-absent.yml
+  register: response

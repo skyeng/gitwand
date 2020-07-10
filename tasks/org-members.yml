@@ -20,7 +20,7 @@
     role: admin
 
 - name: "Update all the supplied {{ orgs[github_org].member | length }} members of the {{ github_org }} organization"
-  loop: "{{ orgs[github_org].member }}"
+  loop: "{{ orgs[github_org].member | difference(orgs[github_org].admin | default([])) }}"
   loop_control:
     loop_var: mmbr
   include_tasks: org-member-present.yml
