@@ -1,13 +1,14 @@
 # Ansible Role: Gitwand
 
 Manage your organization at Github:
-* Pointedly: only that will be changed what has to be changed.
-* Fast: as it does not do anything excessive.
-* Simply: all configs are in YAML.
-* Say *enough!* to cryptic nicknames in your configs.  Here you can use real names of your fellows.
+* **Pointedly**: only that will be changed what has to be changed.
+* **Fast**: as it does not do anything excessive.
+* **Simply**: all configs are in YAML.
+* Say *enough!* to cryptic nicknames in your configs.  Here you can use **real names** of your fellows.
 
 ## Organization
-Place in `vars/github/orgs/`, one per file.  Typically you have only one organization, say `my_org`.  Then place it in `my_org.yml` like this:
+Describe all your organizations in `vars/github/orgs/`, one per file.  Typically you have only one organization, say `my_org`.
+Then place it in `my_org.yml` like this:
 ```yaml
 my_org:
   name: My Organization
@@ -19,7 +20,9 @@ my_org:
     - dude4
 ```
 * `name` (required) is a name of you organization at Github.
-* Any other parameters are optional.
+* All other parameters are optional.
+* **Notice** these lists are closed.  If you place here someone, they will be added to your organization.
+  If you remove someone, they will be removed.
 
 ## Organization members
 Place them all in `vars/users/`, one per file:
@@ -29,8 +32,8 @@ john.smith:
 ```
 
 ## Teams
-```yaml
 Place all your teams in `vars/github/teams/`, one per file:
+```yaml
 my_team:
   privacy: closed / secret
   parent: parent_team
@@ -42,7 +45,8 @@ my_team:
     - dude4
 ```
 * `privacy` (required) determines [visibility](https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/about-teams#team-visibility) of the team.
-* Any other parameters are optional.
+* All other parameters are optional.
+* **Notice** teams members lists are closed and operate the same way as a list of organization's members.
 
 ## Repositories
 Here is where the real work is going.  Describe your repositories in `vars/github/repos`, one per file:
@@ -78,6 +82,9 @@ my_repo:
       - freelancer
 ```
 * All parameters are optional.
+* If you have a large number of repositories it's okay to have here only few.
+  We're not going to touch anything else, what's not described here.
+* Those lists of teams and collaborators are closed as in other places.
 
 # How to use it
 So far so good?  Aren't you tired with describing all your staff?  Let's now play with it. :-)
@@ -87,9 +94,10 @@ To apply changes in your organization members run:
 ansible-playbook playbooks/github.yml -e github_members__state=present
 ```
 
-Have changed only one user?  Would like to update just him or her?  Do this:
+Have changed only one user?  Would like to update just him or her?  Do like following.  And don't forget,
+we use real names (not their own nicknames at Github) here as described in `vars/users/`.
 ```
-ansible-playbook playbooks/github.yml -e github_members__state=present -e github_members__include=my_user
+ansible-playbook playbooks/github.yml -e github_members__state=present -e github_members__include=john.smith
 ```
 
 Update all your teams:
