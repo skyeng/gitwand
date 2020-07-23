@@ -96,7 +96,7 @@
 - name: "Remove {{ unknown | length }} unspecified collaborators from the {{ repo.key }} repository"
   loop: "{{ unknown }}"
   loop_control:
-    loop_var: team
+    loop_var: clbr
   include_tasks: repo-collaborator-absent.yml
   vars:
     unknown: >-
