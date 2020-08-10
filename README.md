@@ -91,51 +91,51 @@ So far so good?  Aren't you tired with describing all your staff?  Let's now pla
 
 To apply changes in your organization members run:
 ```
-ansible-playbook playbooks/github.yml -e github_members__state=present
+ansible-playbook playbooks/gitwand.yml -e github_members__state=present
 ```
 
 Have changed only one user?  Would like to update just him or her?  Do like following.  And don't forget,
 we use real names (not their own nicknames at Github) here as described in `vars/users/`.
 ```
-ansible-playbook playbooks/github.yml -e github_members__state=present -e github_members__include=john.smith
+ansible-playbook playbooks/gitwand.yml -e github_members__state=present -e github_members__include=john.smith
 ```
 
 Update all your teams:
 ```
-ansible-playbook playbooks/github.yml -e github_teams__state=present
+ansible-playbook playbooks/gitwand.yml -e github_teams__state=present
 ```
 
 Or better just one:
 ```
-ansible-playbook playbooks/github.yml -e github_teams__state=present -e github_teams__include=my_team
+ansible-playbook playbooks/gitwand.yml -e github_teams__state=present -e github_teams__include=my_team
 ```
 
 Dump all your teams:
 ```
-ansible-playbook playbooks/github.yml -e github_teams__state=dump
+ansible-playbook playbooks/gitwand.yml -e github_teams__state=dump
 ```
 
 And sure, you can dump info about only one team as well:
 ```
-ansible-playbook playbooks/github.yml -e github_teams__state=dump -e github_teams__include=my_team
+ansible-playbook playbooks/gitwand.yml -e github_teams__state=dump -e github_teams__include=my_team
 ```
 
 The same about repos.  Update all your repositories at once:
 ```
-ansible-playbook playbooks/github.yml -e github_repos__state=present
+ansible-playbook playbooks/gitwand.yml -e github_repos__state=present
 ```
 
 Or better update only one repo:
 ```
-ansible-playbook playbooks/github.yml -e github_repos__state=present -e github_repos__include=my_repo
+ansible-playbook playbooks/gitwand.yml -e github_repos__state=present -e github_repos__include=my_repo
 ```
 
 Dump all repos:
 ```
-ansible-playbook playbooks/github.yml -e github_repos__state=dump
+ansible-playbook playbooks/gitwand.yml -e github_repos__state=dump
 ```
 
 Or dump only one repo:
 ```
-ansible-playbook playbooks/github.yml -e github_repos__state=dump -e github_repos__include=my_repo
+ansible-playbook playbooks/gitwand.yml -e github_repos__state=dump -e github_repos__include=my_repo
 ```

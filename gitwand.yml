@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  gather_facts: no
+  roles:
+    - gitwand
+  vars:
+    github_org: skyeng
+    github_user: ""
+    github_token: ""
+    github_vars_dir: vars/github
+    github_users_dir: vars/users
