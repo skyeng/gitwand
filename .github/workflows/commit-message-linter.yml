@@ -1,0 +1,17 @@
+name: Commit Message Linter
+on: [push, pull_request]
+
+jobs:
+  commit_lint:
+    name: MessageCheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout skyeng/github-actions
+        uses: actions/checkout@v2
+        with:
+          repository: skyeng/github-actions
+          token: ${{ secrets.COMMIT_MESSAGE_LINTER_TOKEN }}
+      - name: Lint commit messages
+        uses: ./commit-message-linter
+        with:
+          token: ${{ secrets.COMMIT_MESSAGE_LINTER_TOKEN }}
