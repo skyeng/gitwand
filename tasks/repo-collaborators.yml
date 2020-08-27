@@ -27,7 +27,7 @@
     cllbrtrs: "{{ cllbrtrs + username }}"
   vars:
     query: "[? value.github == '{{ collaborator }}'].key"
-    username: "{{ lookup('dict', users) | json_query(query) }}" # a list of zero or one element
+    username: "{{ lookup('dict', users, wantlist=true) | json_query(query) }}" # a list of zero or one element
 
 - name: "Dump all the {{ response | json_query('results[*].json[*]') | flatten | length }} {{ repo_name }} repo's {{ affiliation }} collaborators"
   when: affiliation == 'outside'

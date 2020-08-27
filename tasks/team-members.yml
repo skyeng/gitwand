@@ -25,7 +25,7 @@
     mmbrs: "{{ mmbrs + username }}"
   vars:
     query: "[? value.github == '{{ member }}'].key"
-    username: "{{ lookup('dict', users) | json_query(query) }}" # a list of zero or one element
+    username: "{{ lookup('dict', users, wantlist=true) | json_query(query) }}" # a list of zero or one element
 
 - name: "Jot down all {{ mmbrs | length }} {{ team_slug }}'s {{ role }}s into the {{ mmbrs_var }} variable"
   set_fact: "{{ mmbrs_var }}={{ mmbrs }}"
