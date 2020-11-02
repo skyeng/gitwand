@@ -6,7 +6,9 @@
     headers:
       Authorization: "token {{ github_token }}"
     method: PUT
-    status_code: 204
+    status_code:
+      - 201
+      - 204
     url: "{{ github_api }}/repos/{{ github_org }}/{{ repo.key }}/collaborators/{{ clbr }}"
   vars:
     body:
