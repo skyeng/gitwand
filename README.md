@@ -1,4 +1,15 @@
-# Ansible Role: Gitwand
+# Управление Github-ом
+
+## Краткое описание
+На Github-е лежат репозитории всех проектов компании. Туда имеют доступ все команды разработки, все разработчики, тестировщики, аналитики и другие люди. В репозитории gitwand живёт код для управления всем этим хозяйством.
+
+## Ответственные
+
+- Code owner: Игорь Плехов
+- Product owner: Артем Науменко
+- Команда: Infra Operations
+
+
 
 Manage your organization at Github:
 * **Pointedly**: only that will be changed what has to be changed.
